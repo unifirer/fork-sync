@@ -20,8 +20,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build fork inventory from GitLab
+      - name: Build fork inventory from GitHub
         env:
+          GITHUB_TOKEN: ${{ secrets.SYNC_PAT }}
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
         run: |
           python3 build_inventory.py > inventory.json
