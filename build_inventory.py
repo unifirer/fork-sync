@@ -84,6 +84,10 @@ def gitlab_projects():
         if not batch:
             break
         for project in batch:
+            if project.get("marked_for_deletion_on"):
+                continue
+            if "deletion_scheduled" in project["path_with_namespace"]:
+                continue
             by_path[project["path_with_namespace"].lower()] = project
             key = github_key(project.get("import_url"))
             if key:

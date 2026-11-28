@@ -102,8 +102,17 @@ def ensure_project(repo):
     name = source.rstrip("/").rsplit("/", 1)[-1].removesuffix(".git")
     description = "fork-sync:mirrored from GitHub"
     if repo.get("gitlab_id"):
-        project = api_request("GET", f"https://gitlab.com/api/v4/projects/{repo['gitlab_id']}?statistics=true")
-        if project.get("empty_repo"):
+        try:
+            project = api_request("GET", f"https://gitlab.com/api/v4/projects/{repo['gitlab_id']}?statistics=true")
+        except RuntimeError as exc:
+            if "404" in str(exc):
+                project = None
+            else:
+                raise
+        if project is None or project.get("marked_for_deletion_on"):
+            project = create_project(repo["gitlab_path"], name, description)
+            unprotect_default_branch(project)
+        elif project.get("empty_repo"):
             project = initialize_empty_project(project)
     else:
         project = create_project(repo["gitlab_path"], name, description)
