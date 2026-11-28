@@ -20,6 +20,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up git-lfs
+        run: |
+          if ! git lfs version >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq git-lfs
+          fi
+          git lfs version
+
       - name: Build fork inventory from GitHub
         env:
           GITHUB_TOKEN: ${{ secrets.SYNC_PAT }}
